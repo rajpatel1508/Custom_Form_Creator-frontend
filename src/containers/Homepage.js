@@ -12,7 +12,6 @@ import {
     Nav,
 } from "react-bootstrap";
 import axios from "axios";
-// import { Link } from 'react-router-dom';
 import './style.css';
 import axiosInstance from "../helpers/axios";
 
@@ -26,6 +25,9 @@ const FormList = () => {
     const [isAuthenticated, setisAuthenticted] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [Responses, setResponses] = useState([]);
+    const [viewResponses, setViewResponses] = useState(false);
+    
 
     const handleLogin = async () => {
         const res = await axiosInstance.post(`/login`, {
@@ -37,14 +39,13 @@ const FormList = () => {
             const { token, user } = res.data;
             localStorage.setItem("token", token);
             localStorage.setItem("user", JSON.stringify(user));
-        } 
-        
+        }
     };
 
     const handleSignUp = async () => {
         let res;
         try {
-            res = await axiosInstance.post(`/register`, {username,password});
+            res = await axiosInstance.post(`/register`, { username, password });
             if (res.status === 200) {
                 const { token, user } = res.data;
                 localStorage.setItem("token", token);
@@ -77,16 +78,26 @@ const FormList = () => {
     const handleShow = () => setShow(true);
     const handleClose = () => setShow(false);
 
-    const handleSubmit = () => {
-        // Implement form submission logic
+    const handleSubmit = async () => {
+        const res = await axiosInstance.post(`/forms`, {
+            title: formName,
+            fields: inputs
+        });
+
+        if (res.status === 200) {
+            console.log('form created');
+        }
     };
 
-    const handleDelete = (id) => {
-        // Implement delete logic
-    };
-
-    const handleView = (id) => {
-        // Implement view responses logic
+    const handleView = async (id) => {
+        const res = await axiosInstance.get(`/forms/${id}/responses`);
+        if (res.status === 200) {
+            setResponses(res.data.responses);
+        }
+        else {
+            console.log('error getting responses');
+        }
+        setViewResponses(true);
     };
 
     const handleInputChange = (e, index) => {
@@ -99,9 +110,17 @@ const FormList = () => {
         setInputs([...inputs, { value: "" }]);
     };
 
+    const onEdit = (id) => {
+
+    }
+
+    const onDelete = (id) => {
+
+    }
+
     return (
         <>
-            <Modal show={showLogin} onHide ={() => setShowLogin(false)}>
+            <Modal show={showLogin} onHide={() => setShowLogin(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Login</Modal.Title>
                 </Modal.Header>
@@ -168,7 +187,7 @@ const FormList = () => {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Form inline>
                         {isAuthenticated ? (
-                            <Button variant="outline-success">
+                            <Button variant="outline-success" onClick={() => {localStorage.clear(),location.reload()}}>
                                 Sign Out
                             </Button>
                         ) : (
@@ -176,7 +195,7 @@ const FormList = () => {
                                 <Button variant="outline-success" onClick={() => setShowLogin(true)}>
                                     Login
                                 </Button>
-                                    <Button variant="outline-success" onClick={() => setShowSignUp(true)}>
+                                <Button variant="outline-success" onClick={() => setShowSignUp(true)}>
                                     Sign Up
                                 </Button>
                             </>
@@ -240,11 +259,37 @@ const FormList = () => {
                         </Col>
                         <Col style={{ maxWidth: '500px' }}>
                             <Button style={{ marginRight: '5px' }} onClick={() => handleView(form._id)}>View Responses</Button>
-                            <Button style={{ marginRight: '5px' }} onClick={() => handleDelete(form._id)}>Delete</Button>
-                            <Button >Edit</Button>
                         </Col>
                     </Row>
                 ))}
+                <Modal show={viewResponses} onHide={() => setViewResponses(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Responses for Form</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Response ID</th>
+                                    <th>Response Data</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {Responses.map((response, index) => (
+                                    <tr key={index}>
+                                        <td>{response._id}</td>
+                                        <td>{response.answers.map((answer) => (<>{answer}<br/></>))}</td>
+                                        <td>
+                                            <Button onClick={() => onEdit(response.id)}>Edit</Button>
+                                            <Button onClick={() => onDelete(response.id)}>Delete</Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Modal.Body>
+                </Modal>
             </Container>
         </>
     );
