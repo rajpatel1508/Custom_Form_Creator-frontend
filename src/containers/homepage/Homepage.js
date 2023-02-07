@@ -176,11 +176,13 @@ const FormList = () => {
                     <Form>
                         <Form.Group controlId="formBasicUsername">
                             <Form.Label>Username</Form.Label>
-                            <Form.Control type="text" placeholder="Enter username" />
+                            <Form.Control type="text" placeholder="Enter username" value={username}
+                                onChange={(e) => setUsername(e.target.value)} />
                         </Form.Group>
                         <Form.Group controlId="formBasicPassword">
                             <Form.Label>Password</Form.Label>
-                            <Form.Control type="password" placeholder="Password" />
+                            <Form.Control type="password" placeholder="Password" value={password}
+                                onChange={(e) => setPassword(e.target.value)} />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -270,7 +272,7 @@ const FormList = () => {
                             <Link to={`/forms/link/${form._id}`}>Form Link</Link>
                         </Col>
                         <Col style={{ maxWidth: '500px' }}>
-                            <Button style={{ marginRight: '5px' }} onClick={() => handleView(form._id)}>View Responses</Button>
+                            <Button disabled={!isAuthenticated} style={{ marginRight: '5px' }} onClick={() => handleView(form._id)}>View Responses</Button>
                         </Col>
                     </Row>
                 ))}
