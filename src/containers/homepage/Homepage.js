@@ -13,7 +13,8 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 import './style.css';
-import axiosInstance from "../helpers/axios";
+import axiosInstance from "../../helpers/axios";
+import { Link } from "react-router-dom";
 
 const FormList = () => {
     const [forms, setForms] = useState([]);
@@ -27,7 +28,7 @@ const FormList = () => {
     const [password, setPassword] = useState("");
     const [Responses, setResponses] = useState([]);
     const [viewResponses, setViewResponses] = useState(false);
-    
+
 
     const handleLogin = async () => {
         const res = await axiosInstance.post(`/login`, {
@@ -61,16 +62,13 @@ const FormList = () => {
     };
 
     useEffect(() => {
-        axios({
-            method: 'GET',
-            url: 'https://infyu-backend.onrender.com/api/forms',
-        })
-            .then((res) => {
+        const getformdata = async () => {
+            const res = await axiosInstance.get('/forms');
+            if (res.status == 200) {
                 setForms(res.data.forms)
-            })
-            .catch(e => {
-                console.log(e);
-            })
+            }
+        }
+        getformdata();
         const token = localStorage.getItem('token');
         if (token) {
             setisAuthenticted(true);
@@ -110,15 +108,18 @@ const FormList = () => {
     };
 
     const addInput = () => {
-        setInputs([...inputs, { }]);
+        setInputs([...inputs, {}]);
     };
 
     const onEdit = (id) => {
 
     }
 
-    const onDelete = (id) => {
-
+    const onDelete = async (id) => {
+        const res = await axiosInstance.delete(`/responses/${id}`);
+        if (res.status == 200) {
+            window.location.reload();
+        }
     }
 
     return (
@@ -190,7 +191,7 @@ const FormList = () => {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Form inline>
                         {isAuthenticated ? (
-                            <Button variant="outline-success" onClick={() => { localStorage.clear(); window.location.reload()}}>
+                            <Button variant="outline-success" onClick={() => { localStorage.clear(); window.location.reload() }}>
                                 Sign Out
                             </Button>
                         ) : (
@@ -258,7 +259,7 @@ const FormList = () => {
                     <Row key={form._id}>
                         <Col >{form.title}</Col>
                         <Col >
-                            <a href={`https://infy-u-labs-assignment-frontend-oplgawtfr-rajpatel1508.vercel.app/forms/${form._id}/link`}>Form Link</a>
+                            <Link to={`/forms/link/${form._id}`}>Form Link</Link>
                         </Col>
                         <Col style={{ maxWidth: '500px' }}>
                             <Button style={{ marginRight: '5px' }} onClick={() => handleView(form._id)}>View Responses</Button>
@@ -282,10 +283,10 @@ const FormList = () => {
                                 {Responses.map((response, index) => (
                                     <tr key={index}>
                                         <td>{response._id}</td>
-                                        <td>{response.answers.map((answer) => (<>{answer}<br/></>))}</td>
+                                        <td>{response.answers.map((answer) => (<>{answer}<br /></>))}</td>
                                         <td>
                                             <Button onClick={() => onEdit(response.id)}>Edit</Button>
-                                            <Button onClick={() => onDelete(response.id)}>Delete</Button>
+                                            <Button onClick={() => onDelete(response._id)}>Delete</Button>
                                         </td>
                                     </tr>
                                 ))}

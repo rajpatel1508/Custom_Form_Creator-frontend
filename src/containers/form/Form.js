@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Col, Button, Modal } from 'react-bootstrap';
+import { Form, Col, Button, Modal, Container } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
-import axiosInstance from '../helpers/axios';
+import axiosInstance from '../../helpers/axios';
 
-const FormResponsePage = ({ formData }) => {
+const FormResponsePage = () => {
     const [showModal, setShowModal] = useState(false);
     const [responses, setResponses] = useState([]);
     const { id } = useParams();
-    const [formdata, setformdata] = useState([]);
+    const [formdata, setformdata] = useState({});
 
     const handleClose = () => setShowModal(false);
     const handleShow = () => setShowModal(true);
 
-    useEffect(async () => {
-        const res = await axiosInstance.get(`/api/form/${id}`);
-        if (res.status === 200) {
-            setformdata(res.data.fields);
+    useEffect(() => {
+        const getdata = async () => {
+            const res = await axiosInstance.get(`/form/${id}`);
+            if (res.status === 200) {
+                setformdata(res.data.form);
+            }
+            else {
+                console.log('error getting data');
+            }
         }
-        else {
-            console.log('error getting data');
-        }
-    },[])
-    const handleChange = (event,index) => {
+        getdata();
+    }, [])
+
+    console.log(formdata.fields)
+    const handleChange = (event, index) => {
         const newInputs = [...responses];
         newInputs[index] = event.target.value;
         setResponses(newInputs);
@@ -32,23 +37,24 @@ const FormResponsePage = ({ formData }) => {
         const res = await axiosInstance.post(`/forms/${id}/response`, { responses });
         if (res.status == 200) {
             console.log('response added');
-            setShowModal(true);
+            handleShow();
         }
     };
 
     return (
-        <>
+        <Container>
+            <h1>here</h1>
             <h2>{formdata.title}</h2>
             <Form onSubmit={handleSubmit}>
-                {formdata.fields.map((field, index) => (
+                {formdata.fields && formdata.fields.map((field, index) => (
                     <Form.Row key={index}>
-                        <Form.Group as={Col} controlId={field}>
+                        <Form.Group controlId={field}>
                             <Form.Label>{field}</Form.Label>
                             <Form.Control
                                 type="text"
                                 name={field}
                                 value={""}
-                                onChange={(e) => handleChange(e,index)}
+                                onChange={(e) => handleChange(e, index)}
                             />
                         </Form.Group>
                     </Form.Row>
@@ -68,7 +74,7 @@ const FormResponsePage = ({ formData }) => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </>
+        </Container>
     );
 };
 

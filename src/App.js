@@ -1,15 +1,16 @@
 import './App.css';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import Homepage from './containers/Homepage';
-import Form from './containers/Form';
+import FormList from './containers/homepage/Homepage';
+import FormResponsePage from './containers/form/Form';
+
 
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path='/' element={<Homepage />} />
-        <Route path='/forms/:id/link' element={<Form />} />
+        <Route path='/' element={<FormList />} />
+        <Route path='/forms/link/:id' element={<FormResponsePage />} />
       </Routes>
     </Router>
   );
