@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Col, Button, Modal, Container } from 'react-bootstrap';
+import { Form, Col, Button, Modal, Container, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import axiosInstance from '../../helpers/axios';
 
@@ -34,7 +34,8 @@ const FormResponsePage = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const res = await axiosInstance.post(`/forms/${id}/response`, { responses });
+        console.log({ responses });
+        const res = await axiosInstance.post(`/forms/response/${id}`, { answers: responses });
         if (res.status == 200) {
             console.log('response added');
             handleShow();
@@ -43,26 +44,22 @@ const FormResponsePage = () => {
 
     return (
         <Container>
-            <h1>here</h1>
             <h2>{formdata.title}</h2>
-            <Form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                 {formdata.fields && formdata.fields.map((field, index) => (
-                    <Form.Row key={index}>
-                        <Form.Group controlId={field}>
-                            <Form.Label>{field}</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name={field}
-                                value={""}
-                                onChange={(e) => handleChange(e, index)}
-                            />
-                        </Form.Group>
-                    </Form.Row>
+                    <Row key={index}>
+                        <Col>
+                            <label>{field}</label>
+                        </Col>
+                        <Col>
+                            <input type={"text"} onChange={(e) => handleChange(e, index)} />
+                        </Col>
+                    </Row>
                 ))}
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>
-            </Form>
+            </form>
             <Modal show={showModal} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Response submitted</Modal.Title>

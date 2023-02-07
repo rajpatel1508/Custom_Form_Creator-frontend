@@ -28,7 +28,8 @@ const FormList = () => {
     const [password, setPassword] = useState("");
     const [Responses, setResponses] = useState([]);
     const [viewResponses, setViewResponses] = useState(false);
-
+    const [editShow, seteditShow] = useState(false);
+    const [editedResponse, setEditedResponse] = useState({});
 
     const handleLogin = async () => {
         const res = await axiosInstance.post(`/login`, {
@@ -111,8 +112,8 @@ const FormList = () => {
         setInputs([...inputs, {}]);
     };
 
-    const onEdit = (id) => {
-
+    const onEdit = async (id) => {
+        
     }
 
     const onDelete = async (id) => {
@@ -121,6 +122,13 @@ const FormList = () => {
             window.location.reload();
         }
     }
+
+    const handleSave = async (id) => {
+        const res = await axiosInstance.patch(`/responses/${id}`);
+        if (res.status == 200) {
+            seteditShow(false);
+        }
+    };
 
     return (
         <>
@@ -292,6 +300,37 @@ const FormList = () => {
                                 ))}
                             </tbody>
                         </Table>
+                        {/* <Modal show={editShow} onHide={() => seteditShow(false)}>
+                            <Modal.Body>
+                                {Responses.map((response) => (
+                                    <div key={response._id}>
+                                        <h5>Response {response._id}</h5>
+                                        <Form>
+                                            {response.fields.map((field) => (
+                                                <Form.Group key={field} controlId={field}>
+                                                    <Form.Label>{field}</Form.Label>
+                                                    <Form.Control
+                                                        type="text"
+                                                        defaultValue={response[field]}
+                                                        onChange={(e) => {
+                                                            setEditedResponse({ ...editedResponse, [field]: e.target.value });
+                                                        }}
+                                                    />
+                                                </Form.Group>
+                                            ))}
+                                            <Button variant="primary" onClick={() => handleSave(response._id)}>
+                                                Save
+                                            </Button>
+                                        </Form>
+                                    </div>
+                                ))}
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleClose}>
+                                    Close
+                                </Button>
+                            </Modal.Footer>
+                        </Modal> */}
                     </Modal.Body>
                 </Modal>
             </Container>
